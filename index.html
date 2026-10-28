@@ -1,0 +1,310 @@
+<!doctype html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>VIT Campus Compass — Find Your People. Discover Your Next Move.</title>
+  <meta name="description" content="VIT Campus Compass: an unofficial student-built guide to clubs, events and student resources at Vishwakarma Institute of Technology (VIT), Pune.">
+  <meta name="theme-color" content="#faf7f2">
+  <meta name="author" content="Om Pansare">
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%235b3df5'/%3E%3Cpath d='M20.5 11.5l-3 6-6 3 3-6z' fill='none' stroke='white' stroke-width='2' stroke-linejoin='round'/%3E%3C/svg%3E">
+  <!-- Set the saved/system theme BEFORE the page paints, to avoid a flash of the wrong theme -->
+  <script>
+    (function () {
+      try {
+        var t = localStorage.getItem('vcc-theme');
+        if (t !== 'light' && t !== 'dark') {
+          t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        }
+        document.documentElement.setAttribute('data-theme', t);
+      } catch (e) {}
+    })();
+  </script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <a class="skip" href="#main">Skip to content</a>
+  <div class="progress" id="progress" aria-hidden="true"></div>
+
+  <!-- ===== Local SVG icon sprite (no external icon library) ===== -->
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <defs>
+      <symbol id="i-code" viewBox="0 0 24 24"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></symbol>
+      <symbol id="i-cog" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3.2"/><circle cx="12" cy="12" r="7"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M4.9 4.9l2.1 2.1M17 17l2.1 2.1M4.9 19.1L7 17M17 7l2.1-2.1"/></symbol>
+      <symbol id="i-planet" viewBox="0 0 24 24"><circle cx="12" cy="12" r="5"/><path d="M3 16c3.5 2 13-1.5 18-8"/></symbol>
+      <symbol id="i-network" viewBox="0 0 24 24"><circle cx="6" cy="6" r="2.5"/><circle cx="18" cy="8" r="2.5"/><circle cx="12" cy="18" r="2.5"/><path d="M8 7l8 1M7 8l4 8M17 10l-4 6"/></symbol>
+      <symbol id="i-trending" viewBox="0 0 24 24"><polyline points="3 17 9 11 13 15 21 7"/><polyline points="15 7 21 7 21 13"/></symbol>
+      <symbol id="i-mic" viewBox="0 0 24 24"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></symbol>
+      <symbol id="i-film" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M7 4v16M17 4v16M3 9h4M3 15h4M17 9h4M17 15h4"/></symbol>
+      <symbol id="i-heart" viewBox="0 0 24 24"><path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.5A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/></symbol>
+      <symbol id="i-pen" viewBox="0 0 24 24"><path d="M4 20l1-4L16 5a2.1 2.1 0 0 1 3 3L8 19z"/><path d="M14 7l3 3"/></symbol>
+      <symbol id="i-lightbulb" viewBox="0 0 24 24"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-4 10.5c.7.7 1 1.5 1 2.5h6c0-1 .3-1.8 1-2.5A6 6 0 0 0 12 3z"/></symbol>
+      <symbol id="i-coffee" viewBox="0 0 24 24"><path d="M4 9h13v5a5 5 0 0 1-5 5H9a5 5 0 0 1-5-5zM17 11h2a2 2 0 0 1 0 4h-2M8 3v2M12 3v2"/></symbol>
+      <symbol id="i-headset" viewBox="0 0 24 24"><rect x="2" y="8" width="20" height="9" rx="3"/><path d="M8 17l1.5-3h5L16 17"/></symbol>
+      <symbol id="i-graduation" viewBox="0 0 24 24"><path d="M2 9l10-5 10 5-10 5z"/><path d="M6 11v5c3 2.5 9 2.5 12 0v-5"/></symbol>
+      <symbol id="i-wheel" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="2.5"/><path d="M3 12h6.5M14.5 12H21M12 14.5V21"/></symbol>
+      <symbol id="i-file" viewBox="0 0 24 24"><path d="M6 3h8l4 4v14H6z"/><path d="M14 3v4h4M9 12h6M9 16h6"/></symbol>
+      <symbol id="i-sparkle" viewBox="0 0 24 24"><path d="M12 3l1.8 5.2L19 10l-5.2 1.8L12 17l-1.8-5.2L5 10l5.2-1.8z"/><path d="M19 17v4M17 19h4"/></symbol>
+      <symbol id="i-plane" viewBox="0 0 24 24"><path d="M21 3L3 11l7 3 3 7z"/><path d="M10 14l11-11"/></symbol>
+      <symbol id="i-flag" viewBox="0 0 24 24"><path d="M5 21V4M5 4h12l-2 4 2 4H5"/></symbol>
+      <symbol id="i-gamepad" viewBox="0 0 24 24"><rect x="2" y="7" width="20" height="11" rx="5"/><path d="M7 10v5M4.5 12.5h5M16 11h.01M18 14h.01"/></symbol>
+      <symbol id="i-chip" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="2"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></symbol>
+      <symbol id="i-flask" viewBox="0 0 24 24"><path d="M9 3h6M10 3v6L4 19a2 2 0 0 0 2 3h12a2 2 0 0 0 2-3l-6-10V3M7.5 15h9"/></symbol>
+      <symbol id="i-atom" viewBox="0 0 24 24"><circle cx="12" cy="12" r="1.6"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(60 12 12)"/><ellipse cx="12" cy="12" rx="9.5" ry="3.8" transform="rotate(120 12 12)"/></symbol>
+      <symbol id="i-ball" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3.5 3.5 3.5 14.5 0 18M12 3c-3.5 3.5-3.5 14.5 0 18"/></symbol>
+      <symbol id="i-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><circle cx="12" cy="12" r="1"/></symbol>
+      <symbol id="i-briefcase" viewBox="0 0 24 24"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M9 7V5a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2M3 13h18"/></symbol>
+      <symbol id="i-compass" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M15.5 8.5l-2 5-5 2 2-5z"/></symbol>
+      <symbol id="i-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6"/><circle cx="17" cy="9" r="2.5"/><path d="M17 14c2.2 0 4 1.8 4 4"/></symbol>
+      <symbol id="i-book" viewBox="0 0 24 24"><path d="M4 19V5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M8 7h7"/></symbol>
+      <symbol id="i-bookmark" viewBox="0 0 24 24"><path d="M6 3h12v18l-6-4-6 4z"/></symbol>
+      <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></symbol>
+      <symbol id="i-sun" viewBox="0 0 24 24"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></symbol>
+      <symbol id="i-moon" viewBox="0 0 24 24"><path d="M21 13A9 9 0 1 1 11 3a7 7 0 0 0 10 10z"/></symbol>
+      <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+      <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18"/></symbol>
+      <symbol id="i-external" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+      <symbol id="i-calendar" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M3 10h18M8 3v4M16 3v4"/></symbol>
+      <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s7-6.5 7-12a7 7 0 0 0-14 0c0 5.5 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/></symbol>
+      <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3l8 3v6c0 5-3.5 8-8 9-4.5-1-8-4-8-9V6z"/><path d="M8.5 12l2.5 2.5 4.5-5"/></symbol>
+      <symbol id="i-infinity" viewBox="0 0 24 24"><path d="M12 12c-2-3-3.5-4-5.5-4a4 4 0 0 0 0 8c2 0 3.5-1 5.5-4zm0 0c2 3 3.5 4 5.5 4a4 4 0 0 0 0-8c-2 0-3.5 1-5.5 4z"/></symbol>
+      <symbol id="i-info" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 11v6M12 7.5h.01"/></symbol>
+      <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+      <symbol id="i-empty" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3M8.5 11h5"/></symbol>
+    </defs>
+  </svg>
+
+  <!-- ===== Header / navigation ===== -->
+  <header class="site-header">
+    <div class="wrap bar">
+      <a class="brand" href="#top" aria-label="VIT Campus Compass — back to top">
+        <span class="brand-mark"><svg class="icon" aria-hidden="true"><use href="#i-compass"/></svg></span>
+        <span class="brand-text">VIT Campus <b>Compass</b></span>
+      </a>
+
+      <nav id="siteNav" class="nav" aria-label="Main">
+        <a href="#clubs" data-spy="clubs">Campus Clubs</a>
+        <a href="#events" data-spy="events">Events</a>
+        <a href="#resources" data-spy="resources">Student Resources</a>
+      </nav>
+
+      <div class="bar-actions">
+        <button id="infinityExit" class="btn btn-small btn-ghost" type="button" hidden>
+          <svg class="icon" aria-hidden="true"><use href="#i-infinity"/></svg> Exit Infinity Mode
+        </button>
+        <button id="themeToggle" class="icon-btn" type="button" aria-label="Switch to dark theme">
+          <svg class="icon icon-moon" aria-hidden="true"><use href="#i-moon"/></svg>
+          <svg class="icon icon-sun" aria-hidden="true"><use href="#i-sun"/></svg>
+        </button>
+        <button id="menuToggle" class="icon-btn menu-btn" type="button" aria-expanded="false" aria-controls="siteNav" aria-label="Open menu">
+          <svg class="icon" aria-hidden="true"><use href="#i-menu"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main id="main">
+
+    <!-- ===== Hero ===== -->
+    <section class="hero" id="top" aria-labelledby="heroTitle">
+      <div class="wrap hero-grid">
+        <div class="hero-copy">
+          <p class="eyebrow">VIT Pune · A student-built campus guide</p>
+          <h1 id="heroTitle">Find your people. <span class="grad">Discover your next move.</span></h1>
+          <p class="lead">VIT Campus Compass puts clubs, events and student resources from across Vishwakarma Institute of Technology in one place, so you spend less time searching and more time joining in.</p>
+
+          <div class="cta-row">
+            <a class="btn btn-primary" href="#clubs">Explore Campus Clubs <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg></a>
+            <a class="btn btn-secondary" href="#events">See Events</a>
+          </div>
+
+          <div class="quick">
+            <p class="quick-label" id="quickLabel">Start with what you like</p>
+            <div class="quick-chips" id="quickChips" role="group" aria-labelledby="quickLabel"></div>
+          </div>
+
+          <dl class="stats" id="heroStats" aria-label="What this guide covers">
+            <div><dt>Clubs &amp; committees</dt><dd data-count="clubs">–</dd></div>
+            <div><dt>Interest areas</dt><dd data-count="categories">–</dd></div>
+            <div><dt>Events &amp; fests</dt><dd data-count="events">–</dd></div>
+            <div><dt>Resources</dt><dd data-count="resources">–</dd></div>
+          </dl>
+        </div>
+
+        <div class="hero-art" aria-hidden="false">
+          <div class="orbit" id="orbit" role="img" aria-label="Decorative orbit of campus interest areas around a compass"></div>
+          <button class="spark" type="button" data-infinity aria-pressed="false" aria-label="Hidden surprise: toggle Infinity Mode" title="Something is glowing…">
+            <svg class="icon" aria-hidden="true"><use href="#i-infinity"/></svg>
+          </button>
+          <p class="byline">Created by <b>Om Pansare</b></p>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Campus Clubs (flagship) ===== -->
+    <section class="section clubs" id="clubs" aria-labelledby="clubsTitle">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow"><span class="flag">Flagship</span> 01 · Campus Clubs</p>
+          <h2 id="clubsTitle">Find the club that feels like yours</h2>
+          <p class="lead">Search by name or interest, filter by category, and bookmark the ones you want to look at again. Details and official source pages are one click away.</p>
+        </header>
+
+        <div class="toolbar" role="search" aria-label="Search and filter clubs">
+          <div class="field field-search">
+            <label for="clubSearch">Search clubs</label>
+            <div class="input-wrap">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input id="clubSearch" type="search" placeholder="Try “robotics”, “coding”, “public speaking”…" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div class="field">
+            <label for="clubTag">Interest</label>
+            <select id="clubTag"></select>
+          </div>
+          <div class="field">
+            <label for="clubSort">Sort by</label>
+            <select id="clubSort">
+              <option value="default">Featured order</option>
+              <option value="az">Name A → Z</option>
+              <option value="za">Name Z → A</option>
+              <option value="cat">Category</option>
+            </select>
+          </div>
+          <button id="savedToggle" class="btn btn-secondary saved-btn" type="button" aria-pressed="false">
+            <svg class="icon" aria-hidden="true"><use href="#i-bookmark"/></svg>
+            Saved <span class="n" id="savedCount">0</span>
+          </button>
+        </div>
+
+        <div class="chips" id="clubChips" role="group" aria-label="Filter clubs by category"></div>
+
+        <div class="result-bar">
+          <p id="clubCount" role="status" aria-live="polite"></p>
+          <button id="clubReset" class="link-btn" type="button" hidden>Reset filters</button>
+        </div>
+
+        <div id="clubGrid" class="grid grid-clubs"></div>
+        <p class="data-note" id="clubNote"></p>
+      </div>
+    </section>
+
+    <!-- ===== Events ===== -->
+    <section class="section events" id="events" aria-labelledby="eventsTitle">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow">02 · Events</p>
+          <h2 id="eventsTitle">What’s happening on campus</h2>
+          <p class="lead">Fests, summits and more. Each event is labelled Upcoming, Happening now, Past or Date not confirmed, based on today’s date. Nothing here is guessed.</p>
+        </header>
+
+        <div class="toolbar toolbar-events" role="search" aria-label="Search and filter events">
+          <div class="field field-search">
+            <label for="eventSearch">Search events</label>
+            <div class="input-wrap">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input id="eventSearch" type="search" placeholder="Search events…" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+          <div class="field">
+            <label for="eventStatus">Status</label>
+            <select id="eventStatus">
+              <option value="all">All statuses</option>
+              <option value="live">Happening now</option>
+              <option value="upcoming">Upcoming</option>
+              <option value="tbc">Date not confirmed</option>
+              <option value="past">Past</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="eventSort">Sort by</label>
+            <select id="eventSort">
+              <option value="soon">Upcoming first</option>
+              <option value="new">Newest date first</option>
+              <option value="old">Oldest date first</option>
+              <option value="az">Name A → Z</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="chips" id="eventChips" role="group" aria-label="Filter events by category"></div>
+
+        <div class="result-bar">
+          <p id="eventCount" role="status" aria-live="polite"></p>
+          <button id="eventReset" class="link-btn" type="button" hidden>Reset filters</button>
+        </div>
+
+        <div id="eventGrid" class="grid grid-events"></div>
+        <p class="data-note" id="eventNote"></p>
+      </div>
+    </section>
+
+    <!-- ===== Student Resources ===== -->
+    <section class="section resources" id="resources" aria-labelledby="resourcesTitle">
+      <div class="wrap">
+        <header class="section-head">
+          <p class="eyebrow">03 · Student Resources</p>
+          <h2 id="resourcesTitle">Support that’s already there for you</h2>
+          <p class="lead">Practical pages for sports, skill-building and careers. Official VIT pages and community-maintained links are always labelled differently.</p>
+        </header>
+
+        <div class="toolbar toolbar-resources" role="search" aria-label="Search and filter resources">
+          <div class="field field-search">
+            <label for="resSearch">Search resources</label>
+            <div class="input-wrap">
+              <svg class="icon" aria-hidden="true"><use href="#i-search"/></svg>
+              <input id="resSearch" type="search" placeholder="Try “resume”, “sports”, “communication”…" autocomplete="off" spellcheck="false">
+            </div>
+          </div>
+        </div>
+
+        <div class="chips" id="resChips" role="group" aria-label="Filter resources by category"></div>
+
+        <div class="result-bar">
+          <p id="resCount" role="status" aria-live="polite"></p>
+          <button id="resReset" class="link-btn" type="button" hidden>Reset filters</button>
+        </div>
+
+        <div id="resGrid" class="grid grid-res"></div>
+        <p class="data-note" id="resNote"></p>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="wrap foot-grid">
+      <div>
+        <p class="brand-line"><b>VIT Campus Compass</b> — Find Your People. Discover Your Next Move.</p>
+        <p class="credit">Designed and built by <b>Om Pansare</b> · First-year B.Tech CSE, VIT Pune</p>
+        <p class="fine">An unofficial student project made for a web development club recruitment task. It is not affiliated with VIT Pune, the Student Council, or any trademark owner. Information comes from supplied notes and public VIT pages and may be out of date, so please confirm on official channels.</p>
+      </div>
+      <div>
+        <p class="foot-title">Official source pages</p>
+        <ul class="foot-links" id="footLinks"></ul>
+        <button class="spark spark-foot" type="button" data-infinity aria-pressed="false" aria-label="Hidden surprise: toggle Infinity Mode" title="∞">
+          <svg class="icon" aria-hidden="true"><use href="#i-infinity"/></svg>
+        </button>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== Details dialog (native <dialog>: focus trap + Esc included) ===== -->
+  <dialog id="modal" class="modal" aria-labelledby="modalTitle">
+    <div class="modal-card">
+      <button class="modal-close icon-btn" type="button" data-close aria-label="Close details">
+        <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+      <div id="modalBody"></div>
+    </div>
+  </dialog>
+
+  <button id="toTop" class="to-top" type="button" aria-label="Back to top" hidden>
+    <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>
+  </button>
+
+  <div id="toast" class="toast" role="status" aria-live="polite"></div>
+
+  <script src="data.js"></script>
+  <script src="script.js"></script>
+</body>
+</html>
