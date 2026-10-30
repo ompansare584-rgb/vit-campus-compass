@@ -298,9 +298,49 @@
     </div>
   </dialog>
 
+  <!-- Arcade launcher: a small spinning 3D cube (opens the mini-game) -->
+  <button id="arcadeOpen" class="arcade-fab" type="button" aria-haspopup="dialog" aria-label="Play Club Catcher, a mini game">
+    <span class="cube-wrap" aria-hidden="true">
+      <span class="cube">
+        <i class="f1"><svg class="icon"><use href="#i-code"/></svg></i>
+        <i class="f2"><svg class="icon"><use href="#i-planet"/></svg></i>
+        <i class="f3"><svg class="icon"><use href="#i-sparkle"/></svg></i>
+        <i class="f4"><svg class="icon"><use href="#i-heart"/></svg></i>
+        <i class="f5"><svg class="icon"><use href="#i-cog"/></svg></i>
+        <i class="f6"><svg class="icon"><use href="#i-compass"/></svg></i>
+      </span>
+    </span>
+    <span class="fab-label">Play</span>
+  </button>
+
   <button id="toTop" class="to-top" type="button" aria-label="Back to top" hidden>
     <svg class="icon" aria-hidden="true"><use href="#i-arrow"/></svg>
   </button>
+
+  <!-- Mini-game dialog -->
+  <dialog id="arcade" class="modal arcade" aria-labelledby="arcadeTitle">
+    <div class="modal-card">
+      <button class="modal-close icon-btn" type="button" data-arcade-close aria-label="Close game">
+        <svg class="icon" aria-hidden="true"><use href="#i-x"/></svg>
+      </button>
+      <header class="m-head"><div>
+        <p class="chip-cat" style="--c:var(--c-tech)"><span class="dot"></span>Mini game</p>
+        <h2 id="arcadeTitle">Club Catcher</h2>
+      </div></header>
+      <p class="game-help">Steer the compass with your mouse, finger or the ← → keys. Catch club icons, dodge asteroids.</p>
+      <div class="hud">
+        <div>Score<b id="gScore">0</b></div>
+        <div>Best<b id="gBest">0</b></div>
+        <div>Lives<b id="gLives">♥♥♥</b></div>
+        <div>Time<b id="gTime">45</b></div>
+      </div>
+      <div class="stage">
+        <canvas id="gameCanvas" role="img" aria-label="Game area: a compass at the bottom catches falling club icons"></canvas>
+        <div id="gameOverlay" class="overlay"></div>
+      </div>
+      <p id="gameMsg" class="game-msg" role="status" aria-live="polite"></p>
+    </div>
+  </dialog>
 
   <div id="toast" class="toast" role="status" aria-live="polite"></div>
 

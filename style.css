@@ -418,3 +418,53 @@ body.infinity .grad { background: linear-gradient(95deg, #ffc94d, #ff4f9a, #a692
   .club-card:hover::before, .res-card:hover::before { opacity: 1; }
 }
 @media (prefers-reduced-motion: reduce) { .progress { transition: none; } }
+
+/* ---------- 14. 3D touches, arcade, easter-egg effects (additive) ---------- */
+/* 3D tilt on cards (JS adds .tilting while the mouse moves over a card) */
+@media (hover: hover) and (prefers-reduced-motion: no-preference) {
+  .card.card.card.tilting { transform: perspective(900px) translateY(-3px) rotateX(var(--rx, 0deg)) rotateY(var(--ry, 0deg)); transform-style: preserve-3d; transition: transform .06s linear, border-color .2s, box-shadow .2s; will-change: transform; }
+  .card.tilting .tile { transform: translateZ(26px); transition: transform .2s; }
+  .card.tilting .card-title { transform: translateZ(14px); }
+}
+/* the hero orbit leans toward the pointer */
+.orbit { transition: transform .25s ease-out; transform-style: preserve-3d; will-change: transform; }
+
+/* spinning 3D cube launcher */
+.arcade-fab { position: fixed; left: 18px; bottom: 18px; z-index: 60; display: flex; align-items: center; gap: 8px; padding: 4px 16px 4px 6px; border: 1px solid var(--line-strong); border-radius: 14px; background: var(--surface); color: var(--ink); box-shadow: var(--shadow); font-weight: 700; font-size: .875rem; }
+.arcade-fab:hover { border-color: var(--accent); background: var(--surface-2); }
+.cube-wrap { display: grid; place-items: center; width: 44px; height: 44px; perspective: 220px; }
+.cube { position: relative; width: 24px; height: 24px; transform-style: preserve-3d; animation: cube-spin 9s linear infinite; }
+.cube i { position: absolute; inset: 0; display: grid; place-items: center; border: 1.5px solid var(--accent); border-radius: 4px; background: color-mix(in srgb, var(--accent) 20%, var(--surface)); color: var(--accent-strong); }
+.cube i .icon { width: 13px; height: 13px; }
+.cube .f1 { transform: translateZ(12px); }
+.cube .f2 { transform: rotateY(180deg) translateZ(12px); }
+.cube .f3 { transform: rotateY(90deg) translateZ(12px); }
+.cube .f4 { transform: rotateY(-90deg) translateZ(12px); }
+.cube .f5 { transform: rotateX(90deg) translateZ(12px); }
+.cube .f6 { transform: rotateX(-90deg) translateZ(12px); }
+@keyframes cube-spin { from { transform: rotateX(-22deg) rotateY(0); } to { transform: rotateX(-22deg) rotateY(360deg); } }
+
+/* game dialog */
+.modal.arcade { width: min(460px, calc(100% - 24px)); }
+.game-help { margin: -4px 0 12px; font-size: .9375rem; color: var(--muted); }
+.hud { display: flex; justify-content: space-between; gap: 8px; margin-bottom: 10px; padding: 8px 14px; border: 1px solid var(--line); border-radius: var(--radius-sm); background: var(--surface-2); font-size: .8125rem; color: var(--muted); font-variant-numeric: tabular-nums; }
+.hud b { display: block; font-family: var(--font-display); font-size: 1.15rem; color: var(--ink); }
+.stage { position: relative; overflow: hidden; border: 1px solid var(--line-strong); border-radius: 14px; background: #0a0820; }
+#gameCanvas { display: block; width: 100%; height: auto; aspect-ratio: 3 / 4; touch-action: none; cursor: ew-resize; }
+.overlay { position: absolute; inset: 0; display: grid; align-content: center; justify-items: center; gap: 10px; padding: 24px; text-align: center; background: rgba(8, 6, 26, .8); color: #f0edfb; }
+.overlay h3 { font-size: 1.7rem; }
+.overlay p { max-width: 32ch; font-size: .95rem; color: #cfcbe8; }
+.ov-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 6px; }
+.game-msg { min-height: 1.5em; margin-top: 10px; font-size: .875rem; font-weight: 600; color: var(--accent-strong); text-align: center; }
+
+/* easter egg: meteor shower (Konami code) and Google-colour confetti ("gdg") */
+.meteor { position: fixed; top: -120px; z-index: 95; width: 2px; height: 100px; background: linear-gradient(to bottom, transparent, #ffd45c); pointer-events: none; animation: meteor 1.3s ease-in forwards; }
+@keyframes meteor { from { transform: translate(0, 0) rotate(30deg); opacity: 1; } to { transform: translate(-620px, 1080px) rotate(30deg); opacity: 0; } }
+/* easter egg: warp speed (click the logo 5 times) */
+.orbit.warp .ring.r1, .orbit.warp .ring.r1 .node { animation-duration: 3s !important; }
+.orbit.warp .ring.r2, .orbit.warp .ring.r2 .node { animation-duration: 2.2s !important; }
+.orbit.warp .ring.r3, .orbit.warp .ring.r3 .node { animation-duration: 1.5s !important; }
+.orbit.warp .core { box-shadow: 0 0 0 10px var(--accent-soft), 0 0 90px var(--accent); }
+
+@media (max-width: 520px) { .fab-label { display: none; } .arcade-fab { padding-right: 6px; } }
+@media (prefers-reduced-motion: reduce) { .cube { animation: none; transform: rotateX(-22deg) rotateY(35deg); } .meteor { display: none; } }

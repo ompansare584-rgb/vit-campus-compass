@@ -594,6 +594,294 @@
     });
   }
 
+  /* ---------- 3D tilt, mini-game and easter eggs (all additive) ---------- */
+  function initTilt() {
+    // Card entrance animations keep a "transform: none" after they end, which would block hover/tilt.
+    // Removing the class once the animation finishes changes nothing visually.
+    ['#clubGrid', '#eventGrid', '#resGrid'].forEach((sel) => {
+      $(sel).addEventListener('animationend', (e) => { if (e.target.classList && e.target.classList.contains('reveal')) e.target.classList.remove('reveal'); });
+    });
+    if (reduceMotion || !window.matchMedia('(hover: hover)').matches) return;
+
+    let current = null;
+    const clear = () => { if (current) { current.classList.remove('tilting'); current.style.removeProperty('--rx'); current.style.removeProperty('--ry'); current = null; } };
+    ['#clubGrid', '#eventGrid', '#resGrid'].forEach((sel) => {
+      const grid = $(sel);
+      grid.addEventListener('pointermove', (e) => {
+        if (e.pointerType !== 'mouse') return;
+        const card = e.target.closest('.card');
+        if (!card) return clear();
+        if (card !== current) { clear(); current = card; card.classList.add('tilting'); }
+        const r = card.getBoundingClientRect();
+        const px = (e.clientX - r.left) / r.width, py = (e.clientY - r.top) / r.height;
+        card.style.setProperty('--ry', `${((px - .5) * 9).toFixed(2)}deg`);
+        card.style.setProperty('--rx', `${((.5 - py) * 7).toFixed(2)}deg`);
+      });
+      grid.addEventListener('pointerleave', clear);
+    });
+
+    // The hero orbit leans toward the pointer
+    const art = $('.hero-art'), orbit = $('#orbit');
+    art.addEventListener('pointermove', (e) => {
+      if (e.pointerType !== 'mouse') return;
+      const r = art.getBoundingClientRect();
+      const px = (e.clientX - r.left) / r.width - .5, py = (e.clientY - r.top) / r.height - .5;
+      orbit.style.transform = `perspective(900px) rotateX(${(-py * 22).toFixed(1)}deg) rotateY(${(px * 22).toFixed(1)}deg)`;
+    });
+    art.addEventListener('pointerleave', () => { orbit.style.transform = ''; });
+  }
+
+  /* ----- Mini-game: Club Catcher ----- */
+  function initArcade() {
+    const dlg = $('#arcade'), cv = $('#gameCanvas'), ctx = cv.getContext('2d');
+    const W = 360, H = 480, DURATION = 45;
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    cv.width = W * dpr; cv.height = H * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    const GLYPH = { tech: '</>', engineering: '⚙', science: '✦', chapters: '◈', business: '↗', growth: '♪', media: '▶', community: '♥' };
+    const COLOR = { tech: '#8b78ff', engineering: '#ff9d5e', science: '#72b2ff', chapters: '#4fd3c1', business: '#71d67d', growth: '#ff7dc2', media: '#ff8080', community: '#f2bd4d' };
+    const CATS = D.CLUB_CATEGORIES.map((c) => c.id);
+    const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+
+    let state = 'idle', raf = 0, last = 0, best = Number(store.get('vcc-best', 0)) || 0, s = null;
+
+    function newRun() {
+      s = { score: 0, lives: 3, t: 0, combo: 0, mult: 1, px: W / 2, target: W / 2, items: [], parts: [], spawn: .4, slow: 0, golds: 0, shake: 0, caught: {}, keys: {},
+        stars: Array.from({ length: 70 }, () => ({ x: Math.random() * 2 - 1, y: Math.random() * 2 - 1, z: Math.random() * .9 + .1 })) };
+      hud(); say('');
+    }
+    function say(m) { $('#gameMsg').textContent = m; }
+    function hud() {
+      $('#gScore').textContent = s.score; $('#gBest').textContent = best;
+      $('#gLives').textContent = '♥'.repeat(Math.max(s.lives, 0)) || '–';
+      $('#gTime').textContent = Math.max(0, Math.ceil(DURATION - s.t));
+    }
+    function overlay(title, text, buttons) {
+      const o = $('#gameOverlay'); o.hidden = false;
+      o.innerHTML = `<h3>${esc(title)}</h3><p>${text}</p><div class="ov-actions">${buttons}</div>`;
+      const b = $('button', o); if (b) b.focus();
+    }
+
+    function spawn() {
+      const r = Math.random(), it = { x: 30 + Math.random() * (W - 60), y: -30, sp: .9 + Math.random() * .25, rot: Math.random() * 6 };
+      if (r < .06) it.type = 'gold';
+      else if (r < .30) it.type = 'rock';
+      else { it.type = 'club'; it.cat = CATS[Math.floor(Math.random() * CATS.length)]; }
+      s.items.push(it);
+    }
+    function burstAt(x, y, color, n) {
+      for (let i = 0; i < n; i++) { const a = Math.random() * 6.28, v = 40 + Math.random() * 110; s.parts.push({ x, y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: .5 + Math.random() * .3, color }); }
+    }
+    function hit(it) {
+      if (it.type === 'club') {
+        s.combo++; s.mult = 1 + Math.floor(s.combo / 5); s.score += 10 * s.mult;
+        s.caught[it.cat] = (s.caught[it.cat] || 0) + 1; burstAt(it.x, it.y, COLOR[it.cat], 8);
+        if (s.mult > 1 && s.combo % 5 === 0) say(`Combo x${s.mult}!`);
+      } else if (it.type === 'rock') {
+        s.lives--; s.combo = 0; s.mult = 1; s.shake = .25; burstAt(it.x, it.y, '#9a96b8', 12); say('Ouch! Asteroid hit.');
+        if (s.lives <= 0) { hud(); return end('lives'); }
+      } else {
+        s.score += 50; s.slow = 3; s.golds++; burstAt(it.x, it.y, '#ffd45c', 16); say(`Golden ∞ caught (${s.golds}/3): bonus + slow motion!`);
+        if (s.golds === 3) {
+          say('Secret unlocked: Infinity Mode!');
+          if (!document.body.classList.contains('infinity')) setInfinity(true, null);
+        }
+      }
+    }
+    function update(dt) {
+      for (const st of s.stars) { st.z -= dt * (state === 'play' ? .3 : .08); if (st.z <= .05) { st.z = 1; st.x = Math.random() * 2 - 1; st.y = Math.random() * 2 - 1; } }
+      for (const p of s.parts) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; }
+      s.parts = s.parts.filter((p) => p.life > 0);
+      s.shake = Math.max(0, s.shake - dt);
+      if (state !== 'play') return;
+
+      s.t += dt;
+      if (s.t >= DURATION) { s.t = DURATION; hud(); return end('time'); }
+      const slowF = s.slow > 0 ? .5 : 1; s.slow = Math.max(0, s.slow - dt);
+      if (s.keys.left) s.target -= 340 * dt;
+      if (s.keys.right) s.target += 340 * dt;
+      s.target = clamp(s.target, 24, W - 24);
+      s.px += (s.target - s.px) * Math.min(1, dt * 18);
+
+      s.spawn -= dt;
+      if (s.spawn <= 0) { spawn(); s.spawn = Math.max(.32, .8 - s.t * .01); }
+      const base = (120 + s.t * 2.6) * slowF;
+      const py = H - 52;
+      const keep = [];
+      for (const it of s.items) {
+        it.y += base * it.sp * dt; it.rot += dt * 2;
+        if (Math.abs(it.x - s.px) < 34 && Math.abs(it.y - py) < 30) { hit(it); if (state !== 'play') return; continue; }
+        if (it.y > H + 30) { if (it.type === 'club') { s.combo = 0; s.mult = 1; } continue; }
+        keep.push(it);
+      }
+      s.items = keep;
+      hud();
+    }
+
+    function rr(x, y, w, h, r) { ctx.beginPath(); ctx.moveTo(x + r, y); ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r); ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath(); }
+    function draw() {
+      ctx.save();
+      ctx.clearRect(0, 0, W, H);
+      if (s.shake > 0 && !reduceMotion) ctx.translate((Math.random() - .5) * 8, (Math.random() - .5) * 8);
+      const g = ctx.createLinearGradient(0, 0, 0, H); g.addColorStop(0, '#0a0820'); g.addColorStop(1, '#241250');
+      ctx.fillStyle = g; ctx.fillRect(-10, -10, W + 20, H + 20);
+
+      // stars rushing toward you (cheap 3D depth)
+      ctx.fillStyle = '#fff';
+      for (const st of s.stars) {
+        const sx = W / 2 + st.x / st.z * 60, sy = H / 2 + st.y / st.z * 80;
+        if (sx < 0 || sx > W || sy < 0 || sy > H) continue;
+        ctx.globalAlpha = .35 + (1 - st.z) * .65; const z = (1 - st.z) * 2.6 + .4; ctx.fillRect(sx, sy, z, z);
+      }
+      ctx.globalAlpha = 1;
+
+      // falling items grow as they get closer
+      for (const it of s.items) {
+        const sc = .7 + .5 * (it.y / H);
+        ctx.save(); ctx.translate(it.x, it.y); ctx.scale(sc, sc);
+        if (it.type === 'club') {
+          ctx.fillStyle = COLOR[it.cat]; rr(-20, -20, 40, 40, 11); ctx.fill();
+          ctx.fillStyle = '#100c2a'; ctx.font = 'bold 17px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText(GLYPH[it.cat], 0, 1);
+        } else if (it.type === 'rock') {
+          ctx.rotate(it.rot); ctx.fillStyle = '#6f6a8f'; ctx.strokeStyle = '#a9a5c8'; ctx.lineWidth = 2;
+          ctx.beginPath(); [[-18, -6], [-8, -19], [10, -16], [19, -2], [12, 16], [-6, 19], [-19, 8]].forEach(([x, y], i) => i ? ctx.lineTo(x, y) : ctx.moveTo(x, y)); ctx.closePath(); ctx.fill(); ctx.stroke();
+        } else {
+          ctx.shadowColor = '#ffd45c'; ctx.shadowBlur = 18; ctx.fillStyle = '#ffd45c'; ctx.beginPath(); ctx.arc(0, 0, 20, 0, 6.29); ctx.fill(); ctx.shadowBlur = 0;
+          ctx.fillStyle = '#2b1d00'; ctx.font = 'bold 26px system-ui, sans-serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle'; ctx.fillText('∞', 0, 1);
+        }
+        ctx.restore();
+      }
+      for (const p of s.parts) { ctx.globalAlpha = clamp(p.life * 2, 0, 1); ctx.fillStyle = p.color; ctx.fillRect(p.x, p.y, 4, 4); }
+      ctx.globalAlpha = 1;
+
+      // the compass (player)
+      const py = H - 52, tilt = clamp((s.target - s.px) * .02, -.5, .5);
+      const glow = ctx.createRadialGradient(s.px, py, 4, s.px, py, 44); glow.addColorStop(0, 'rgba(130,100,255,.55)'); glow.addColorStop(1, 'rgba(130,100,255,0)');
+      ctx.fillStyle = glow; ctx.fillRect(s.px - 46, py - 46, 92, 92);
+      ctx.fillStyle = '#5b3df5'; ctx.strokeStyle = '#fff'; ctx.lineWidth = 2.5; ctx.beginPath(); ctx.arc(s.px, py, 21, 0, 6.29); ctx.fill(); ctx.stroke();
+      ctx.save(); ctx.translate(s.px, py); ctx.rotate(tilt);
+      ctx.fillStyle = '#ff6fb0'; ctx.beginPath(); ctx.moveTo(0, -15); ctx.lineTo(6, 0); ctx.lineTo(-6, 0); ctx.closePath(); ctx.fill();
+      ctx.fillStyle = '#fff'; ctx.beginPath(); ctx.moveTo(0, 15); ctx.lineTo(6, 0); ctx.lineTo(-6, 0); ctx.closePath(); ctx.fill();
+      ctx.restore();
+
+      ctx.fillStyle = '#ffc94d'; ctx.fillRect(0, 0, W * (1 - s.t / DURATION), 3);   // time bar
+      ctx.restore();
+    }
+
+    function loop(now) {
+      const dt = Math.min((now - last) / 1000, .05); last = now;
+      update(dt); draw();
+      if (dlg.open) raf = requestAnimationFrame(loop);
+    }
+    function start() {
+      newRun(); state = 'play'; $('#gameOverlay').hidden = true; cv.focus && cv.focus({ preventScroll: true });
+    }
+    function end(reason) {
+      state = 'over';
+      const total = Object.values(s.caught).reduce((a, b) => a + b, 0);
+      const newBest = s.score > best; if (newBest) { best = s.score; store.set('vcc-best', best); }
+      hud();
+      const top = Object.keys(s.caught).sort((a, b) => s.caught[b] - s.caught[a])[0];
+      const topLabel = top ? D.CLUB_CATEGORIES.find((c) => c.id === top).label : null;
+      const title = reason === 'time' ? 'Time!' : 'Game over';
+      const line = `Score <b>${s.score}</b>${newBest ? ' · new best!' : ''}<br>You caught ${total} club icon${total === 1 ? '' : 's'}.` +
+        (topLabel ? `<br>Your top interest: <b>${esc(topLabel)}</b>` : '');
+      const btns = `<button type="button" class="btn btn-primary" data-g="start">Play again</button>` +
+        (top ? `<button type="button" class="btn btn-secondary" data-g="clubs" data-cat="${esc(top)}">Show me ${esc(topLabel)} clubs</button>` : '');
+      overlay(title, line, btns);
+    }
+
+    function openGame() {
+      newRun(); state = 'idle';
+      root.classList.add('modal-open'); dlg.showModal();
+      overlay('Club Catcher', '45 seconds, 3 lives. Catch club icons, dodge asteroids. A rare golden ∞ gives bonus points and slow motion.', '<button type="button" class="btn btn-primary" data-g="start">Start</button>');
+      last = performance.now(); cancelAnimationFrame(raf); raf = requestAnimationFrame(loop);
+    }
+    $('#arcadeOpen').addEventListener('click', openGame);
+    dlg.addEventListener('click', (e) => {
+      if (e.target === dlg || e.target.closest('[data-arcade-close]')) return dlg.close();
+      const b = e.target.closest('[data-g]'); if (!b) return;
+      if (b.dataset.g === 'start') start();
+      if (b.dataset.g === 'clubs') {
+        const cat = b.dataset.cat; dlg.close();
+        clubState.q = ''; clubState.tag = 'all'; clubState.saved = false; clubState.cat = cat; $('#clubSearch').value = '';
+        renderClubs(); $('#clubs').scrollIntoView({ behavior: reduceMotion ? 'auto' : 'smooth' });
+      }
+    });
+    dlg.addEventListener('close', () => { cancelAnimationFrame(raf); state = 'idle'; root.classList.remove('modal-open'); });
+
+    // controls
+    const moveTo = (e) => { if (!s) return; const r = cv.getBoundingClientRect(); s.target = clamp((e.clientX - r.left) / r.width * W, 24, W - 24); };
+    cv.addEventListener('pointerdown', (e) => { moveTo(e); try { cv.setPointerCapture(e.pointerId); } catch (x) { /* ignore */ } });
+    cv.addEventListener('pointermove', moveTo);
+    document.addEventListener('keydown', (e) => {
+      if (!dlg.open || !s) return;
+      const k = e.key.toLowerCase();
+      if (k === 'arrowleft' || k === 'a') { s.keys.left = true; if (state === 'play') e.preventDefault(); }
+      if (k === 'arrowright' || k === 'd') { s.keys.right = true; if (state === 'play') e.preventDefault(); }
+    });
+    document.addEventListener('keyup', (e) => {
+      if (!s) return; const k = e.key.toLowerCase();
+      if (k === 'arrowleft' || k === 'a') s.keys.left = false;
+      if (k === 'arrowright' || k === 'd') s.keys.right = false;
+    });
+  }
+
+  /* ----- Extra easter eggs -----
+     1) Konami code (↑ ↑ ↓ ↓ ← → ← → B A) -> meteor shower
+     2) Click the logo mark 5 times quickly -> orbit goes to warp speed
+     3) Type "gdg" -> Google-colour confetti and a hello
+     4) In the game, catch 3 golden ∞ in one run -> Infinity Mode (in initArcade)  */
+  function initEggs() {
+    const typingInField = (e) => e.target.closest && e.target.closest('input, textarea, select, [contenteditable]');
+
+    const KONAMI = ['arrowup', 'arrowup', 'arrowdown', 'arrowdown', 'arrowleft', 'arrowright', 'arrowleft', 'arrowright', 'b', 'a'];
+    let kp = 0;
+    document.addEventListener('keydown', (e) => {
+      if (typingInField(e) || $('#arcade').open) return;
+      const k = e.key.toLowerCase();
+      kp = k === KONAMI[kp] ? kp + 1 : (k === KONAMI[0] ? 1 : 0);
+      if (kp === KONAMI.length) {
+        kp = 0; toast('Cheat code accepted. Meteor shower incoming.');
+        if (reduceMotion) return;
+        for (let i = 0; i < 16; i++) {
+          const m = document.createElement('span'); m.className = 'meteor';
+          m.style.left = `${30 + Math.random() * 85}vw`; m.style.animationDelay = `${Math.random() * 1.4}s`;
+          m.addEventListener('animationend', () => m.remove()); document.body.appendChild(m);
+        }
+      }
+    });
+
+    let logoClicks = [], warpTimer;
+    $('.brand-mark').addEventListener('click', () => {
+      const now = Date.now(); logoClicks = logoClicks.filter((t) => now - t < 2500); logoClicks.push(now);
+      if (logoClicks.length >= 5) {
+        logoClicks = []; toast('Warp speed engaged. Hold on to your compass.');
+        if (reduceMotion) return;
+        const orbit = $('#orbit'); orbit.classList.add('warp'); clearTimeout(warpTimer);
+        warpTimer = setTimeout(() => orbit.classList.remove('warp'), 6000);
+      }
+    });
+
+    let buf = '';
+    document.addEventListener('keydown', (e) => {
+      if (e.ctrlKey || e.metaKey || e.altKey || e.key.length !== 1 || typingInField(e) || $('#arcade').open) return;
+      buf = (buf + e.key.toLowerCase()).slice(-3);
+      if (buf === 'gdg') {
+        buf = ''; toast('Hello GDG! A future volunteer says hi. ✦ Om');
+        if (reduceMotion) return;
+        const cols = ['#4285F4', '#EA4335', '#FBBC05', '#34A853'], x = innerWidth / 2, y = innerHeight / 2;
+        for (let i = 0; i < 36; i++) {
+          const sp = document.createElement('span'), a = (i / 36) * Math.PI * 2, d = 90 + Math.random() * 160;
+          sp.className = 'burst'; sp.style.background = cols[i % 4];
+          sp.style.cssText += `;left:${x}px;top:${y}px;--dx:${Math.cos(a) * d}px;--dy:${Math.sin(a) * d}px`;
+          sp.addEventListener('animationend', () => sp.remove()); document.body.appendChild(sp);
+        }
+      }
+    });
+  }
+
   /* ---------- 9. Start-up ---------- */
   setTheme(root.getAttribute('data-theme') || 'light', false);
   initHero();
@@ -602,4 +890,7 @@
   buildResourceControls(); renderResources();
   initScrollSpy();
   initPolish();
+  initTilt();
+  initArcade();
+  initEggs();
 })();
