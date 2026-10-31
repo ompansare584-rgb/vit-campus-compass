@@ -121,7 +121,7 @@ const VCC_DATA = {
       unverified: true,
       sources: ["technical"], tags: [] },
 
-    { id: "gdsc", name: "Google Developer Student Clubs (GDSC)", category: "tech", icon: "code", kind: "Student club",
+    { id: "gdg", name: "Google Developer Student Clubs (GDG)", category: "tech", icon: "code", kind: "Student club",
       description: "Google technologies, application and web development, and workshops.",
       note: "Name shown as supplied. Its current organisational name and status have not been checked.",
       sources: ["technical"], tags: ["google", "web-development", "app-development", "workshops"] },
